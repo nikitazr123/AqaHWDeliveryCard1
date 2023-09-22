@@ -1,4 +1,6 @@
-image: Ubuntu1804  # образ для сборки
+mage: Ubuntu  # образ для сборки
+
+stack: jdk 11  # версия JDK
 
 branches:
   only:
@@ -7,12 +9,9 @@ branches:
 build: off  # будем использовать свой скрипт сборки
 
 install:
-  # запускаем SUT (запоминаем информацию о процессе в переменной $App)
-  - ps: $App = Start-Process -FilePath java -ArgumentList "-jar ./artifacts/app-card-delivery.jar" -PassThru
+  # запускаем SUT (& означает, что в фоновом режиме не блокируем терминал для запуска тестов)
+  - java -jar ./artifacts/app-card-delivery.jar &
+  - chmod +x gradlew
 
 build_script:
-  - ps: chmod +x ./gradlew
-  - ps: ./gradlew test --info "-Dselenide.headless=true"  # стартуем Selenide в Headless-режиме
-
-on_finish:
-  - ps: Stop-Process -Id $App.Id  # останавливаем SUT
+  - ./gradlew test --info -Dselenide.headless=true
